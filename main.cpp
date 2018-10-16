@@ -34,6 +34,5 @@ int main(int argc, char *argv[])
             case "algo": 
         }
     }
-
-        return 0;
+    return 0;
 }
