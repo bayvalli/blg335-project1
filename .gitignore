@@ -2,7 +2,7 @@
 log_inf.csv
 
 # ignoring compiled objects
-/build
+build/
 
 # ignoring editor's automatically created folder
-.vscode
+.vscode/
