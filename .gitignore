@@ -1,3 +1,8 @@
 # ignoring log_inf.csv due to Github's size of file restrictions
 log_inf.csv
-*.o
+
+# ignoring compiled objects
+/build
+
+# ignoring editor's automatically created folder
+.vscode
