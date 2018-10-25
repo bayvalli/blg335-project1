@@ -26,7 +26,7 @@ class CSVReader {
     std::string deliminator;
 
 public:
-    CSVReader(std::string file = "log_inf.csv", std::string delim = ",") : filename(file), deliminator(delim)
+    CSVReader(std::string file = "../log_inf.csv", std::string delim = ",") : filename(file), deliminator(delim)
     {}
     Data * getData(Data * data, const Arguments * args);
 };
