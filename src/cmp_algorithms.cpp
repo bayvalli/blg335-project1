@@ -117,7 +117,7 @@ Data * CSVReader::getData(Data * d, const Arguments * args){
     if(!file.is_open())
         throw "File cannot be opened! Make sure you have log_inf.csv file.";
 
-    getline(file, d->headers); // First line - headers
+    getline(file, headers); // First line - headers
 
     string line;
     for(int i = 0; i < args->size && getline(file, line); i++)

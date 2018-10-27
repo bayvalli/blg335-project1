@@ -16,7 +16,6 @@ struct Data {
     std::vector< std::pair<std::string, std::vector <std::string>>> csv_data;
     std::string timestamp; // 1
     std::string last_price; // 3
-    std::string headers;
 
     //sorting functions
 };
@@ -24,6 +23,7 @@ struct Data {
 class CSVReader {
     std::string filename;
     std::string deliminator;
+    std::string headers;
 
 public:
     CSVReader(std::string file = "../log_inf.csv", std::string delim = ",") : filename(file), deliminator(delim)
