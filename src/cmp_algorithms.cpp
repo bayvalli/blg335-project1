@@ -120,11 +120,11 @@ Data * CSVReader::getData(Data * d, const Arguments * args){
     getline(file, d->headers); // First line - headers
 
     string line;
-    for(int i = 0; i < args->size; i++)
+    for(int i = 0; i < args->size && getline(file, line); i++)
     {
         string input, s;
-        getline(file, input);
-        line = input;
+        
+        input = line;
 
         istringstream ss(input);
         std::getline(ss, d->timestamp, ','); //First column is timestamp
@@ -135,7 +135,7 @@ Data * CSVReader::getData(Data * d, const Arguments * args){
         f_vector.push_back(d->timestamp);
         f_vector.push_back(d->last_price); 
         
-        d->csv_data.push_back(make_pair(line, f_vector)); //Pair for data from 
+        d->csv_data.push_back(make_pair(line, f_vector)); //Pair that sorting algorithms will use 
 
         ss.clear();
 
