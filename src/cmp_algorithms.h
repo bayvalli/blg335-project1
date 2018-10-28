@@ -13,11 +13,14 @@ struct Arguments
 };
 
 struct Data {
-    std::vector< std::pair<std::string, std::vector <std::string>>> csv_data;
+    std::vector< std::pair<std::string, std::pair<std::string, double>>> csv_data;
     std::string timestamp; // 1
     std::string last_price; // 3
+    unsigned int data_size;
 
     //sorting functions
+    Data * insertionSort(const Arguments *);
+
 };
 
 class CSVReader {
@@ -28,7 +31,7 @@ class CSVReader {
 public:
     CSVReader(std::string file = "../log_inf.csv", std::string delim = ",") : filename(file), deliminator(delim)
     {}
-    Data * getData(Data * data, const Arguments * args);
+    Data * getData(Data *, const Arguments *);
 };
 
 #endif

@@ -85,6 +85,8 @@ int main(int argc, char *argv[])
 
     try {
         csv.getData(&data, &arguments);
+        cout << "CSV File has been read." << endl;
+        data.insertionSort(&arguments);
     } catch(const char *msg){
         cerr << msg << endl;
     }
@@ -120,7 +122,7 @@ Data * CSVReader::getData(Data * d, const Arguments * args){
     getline(file, headers); // First line - headers
 
     string line;
-    for(int i = 0; i < args->size && getline(file, line); i++)
+    for(int i = 0; i < args->size && getline(file, line); i++, d->data_size++)
     {
         string input, s;
         
@@ -131,21 +133,51 @@ Data * CSVReader::getData(Data * d, const Arguments * args){
         std::getline(ss, s, ','); //Second column does not matter, will never use..
         std::getline(ss, d->last_price, ','); //First column is timestamp
 
-        vector<string> f_vector;
-        f_vector.push_back(d->timestamp);
-        f_vector.push_back(d->last_price); 
+        pair<string, double> f_pair;
+        f_pair.first = d->timestamp;
+        f_pair.second = stof(d->last_price); 
         
-        d->csv_data.push_back(make_pair(line, f_vector)); //Pair that sorting algorithms will use 
+        d->csv_data.push_back(make_pair(line, f_pair)); //Pair that sorting algorithms will use 
 
         ss.clear();
 
         ////////////////////////////////////////////////////////////////////////////////////
-        cout << line << endl;
+        cout << d->csv_data[i].first << endl;
         cout << "-----------------------------" << endl;
-        cout << "Timestamp:" << f_vector[0] << "\tLast Price:" << f_vector[1] << endl;
+        cout << "Timestamp:" << d->csv_data[i].second.first << "\tLast Price:" << d->csv_data[i].second.second << endl;
         cout << "-----------------------------" << endl;
         ////////////////////////////////////////////////////////////////////////////////////
     }
 
     return d;
+}
+
+Data * Data::insertionSort(const Arguments * args){
+    if(args->feature == "p"){ //insertion sort with respect to last price
+        double key;
+        for(int i = 1, j; i < data_size; i++){
+            key = csv_data[i].second.second;
+            j = i-1;
+
+            while(j >= 0 && csv_data[j].second.second > key){
+                swap(csv_data[j+1], csv_data[j]);
+                j = j-1;
+            }
+            key = csv_data[j+1].second.second;
+        }
+    }
+    else {
+
+    }
+
+    cout << endl << endl << "/////////////////////////////////////////////////////////////////////////" << endl;
+    for(int i=0; i<data_size;i++){
+        ////////////////////////////////////////////////////////////////////////////////////
+        cout << csv_data[i].first << endl;
+        cout << "-----------------------------" << endl;
+        cout << "Timestamp:" << csv_data[i].second.first << "\tLast Price:" << csv_data[i].second.second << endl;
+        cout << "-----------------------------" << endl;
+        ////////////////////////////////////////////////////////////////////////////////////
+    }
+    return this;
 }
