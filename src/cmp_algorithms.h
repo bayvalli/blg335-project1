@@ -12,9 +12,14 @@ struct Arguments
     unsigned int size; // number of lines of the document
 };
 
+struct T {
+    time_t ts;
+    unsigned fraction;
+};
+
 struct Data {
-    std::vector< std::pair<std::string, std::pair<std::string, double>>> csv_data;
-    std::string timestamp; // 1
+    std::vector< std::pair<std::string, std::pair<T, double>>> csv_data;
+    std::string date; // 1
     std::string last_price; // 3
     unsigned int data_size;
 

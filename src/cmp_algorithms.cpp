@@ -10,6 +10,7 @@ using namespace std;
 
 void displayHelp(void);
 void displayUsage(void);
+T dateToTimestamp(string date);
 
 int main(int argc, char *argv[])
 {
@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
 
     try {
         csv.getData(&data, &arguments);
-        cout << "CSV File has been read." << endl;
+        cout << endl << endl << "CSV File has been read." << endl;
         data.insertionSort(&arguments);
     } catch(const char *msg){
         cerr << msg << endl;
@@ -111,6 +112,17 @@ void displayHelp() //Display usage and help for arguments
     exit(EXIT_FAILURE);
 }
 
+T dateToTimestamp(string date){
+    T ts;
+    tm t = {0}; //time struct
+
+    strptime(date.c_str(), "%F %T", &t);
+    ts.ts = mktime(&t);
+    ts.fraction = stoi(date.substr(date.find('.') + 1));
+
+    return ts;
+}
+
 // Function reads from a CSV file to taken parameter Data struct
 // and takes Arguments for reading N lines of the file
 Data * CSVReader::getData(Data * d, const Arguments * args){ 
@@ -124,27 +136,26 @@ Data * CSVReader::getData(Data * d, const Arguments * args){
     string line;
     for(int i = 0; i < args->size && getline(file, line); i++, d->data_size++)
     {
-        string input, s;
-        
+        string input, s;       
         input = line;
 
         istringstream ss(input);
-        std::getline(ss, d->timestamp, ','); //First column is timestamp
+        std::getline(ss, d->date, ','); //First column is date
         std::getline(ss, s, ','); //Second column does not matter, will never use..
-        std::getline(ss, d->last_price, ','); //First column is timestamp
+        std::getline(ss, d->last_price, ','); //Third column is last price
 
-        pair<string, double> f_pair;
-        f_pair.first = d->timestamp;
+        pair<T, double> f_pair;
+        f_pair.first = dateToTimestamp(d->date);;
         f_pair.second = stof(d->last_price); 
         
         d->csv_data.push_back(make_pair(line, f_pair)); //Pair that sorting algorithms will use 
 
         ss.clear();
-
+        
         ////////////////////////////////////////////////////////////////////////////////////
         cout << d->csv_data[i].first << endl;
         cout << "-----------------------------" << endl;
-        cout << "Timestamp:" << d->csv_data[i].second.first << "\tLast Price:" << d->csv_data[i].second.second << endl;
+        cout << "Timestamp:" << d->csv_data[i].second.first.ts << "." << d->csv_data[i].second.first.fraction << "\tLast Price:" << d->csv_data[i].second.second << endl;
         cout << "-----------------------------" << endl;
         ////////////////////////////////////////////////////////////////////////////////////
     }
@@ -167,15 +178,35 @@ Data * Data::insertionSort(const Arguments * args){
         }
     }
     else {
+        time_t ts, f;
+        for(int i = 1, j; i < data_size; i++){
+            ts = csv_data[i].second.first.ts;
+            f = csv_data[i].second.first.fraction;
 
+            j = i-1;
+
+            while(j >= 0 && csv_data[j].second.first.ts > ts){
+                swap(csv_data[j+1], csv_data[j]);
+                
+                int k = j-1;
+                while( k >=0 && csv_data[k].second.first.fraction > f){
+                    swap(csv_data[k+1], csv_data[k]);
+                    k = k - 1;
+                }
+                j = j-1;
+            }
+
+            ts = csv_data[j+1].second.first.ts;
+            f = csv_data[j+1].second.first.fraction;
+        }
     }
 
     cout << endl << endl << "/////////////////////////////////////////////////////////////////////////" << endl;
     for(int i=0; i<data_size;i++){
         ////////////////////////////////////////////////////////////////////////////////////
-        cout << csv_data[i].first << endl;
+        cout << "Line " << i+1 << ": " << csv_data[i].first << endl;
         cout << "-----------------------------" << endl;
-        cout << "Timestamp:" << csv_data[i].second.first << "\tLast Price:" << csv_data[i].second.second << endl;
+        cout << "Timestamp:" << csv_data[i].second.first.ts << "." << csv_data[i].second.first.fraction << "\tLast Price:" << csv_data[i].second.second << endl;
         cout << "-----------------------------" << endl;
         ////////////////////////////////////////////////////////////////////////////////////
     }
