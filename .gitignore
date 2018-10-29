@@ -1,5 +1,6 @@
 # ignoring log_inf.csv due to Github's size of file restrictions
 log_inf.csv
+output.csv
 
 # ignoring compiled objects
 build/

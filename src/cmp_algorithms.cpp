@@ -11,6 +11,9 @@ using namespace std;
 void displayHelp(void);
 void displayUsage(void);
 T dateToTimestamp(string date);
+void mergeSort(Data *d, const Arguments *);
+void merge(Data *d, const Arguments *, Data *left , Data *right);
+
 
 int main(int argc, char *argv[])
 {
@@ -87,7 +90,9 @@ int main(int argc, char *argv[])
     try {
         csv.getData(&data, &arguments);
         cout << endl << endl << "CSV File has been read." << endl;
-        data.insertionSort(&arguments);
+        //data.insertionSort(&arguments);
+        mergeSort(&data, &arguments);
+        csv.createOutput(&data);
     } catch(const char *msg){
         cerr << msg << endl;
     }
@@ -150,17 +155,23 @@ Data * CSVReader::getData(Data * d, const Arguments * args){
         
         d->csv_data.push_back(make_pair(line, f_pair)); //Pair that sorting algorithms will use 
 
-        ss.clear();
-        
-        ////////////////////////////////////////////////////////////////////////////////////
-        cout << d->csv_data[i].first << endl;
-        cout << "-----------------------------" << endl;
-        cout << "Timestamp:" << d->csv_data[i].second.first.ts << "." << d->csv_data[i].second.first.fraction << "\tLast Price:" << d->csv_data[i].second.second << endl;
-        cout << "-----------------------------" << endl;
-        ////////////////////////////////////////////////////////////////////////////////////
+        ss.clear();        
     }
 
     return d;
+}
+
+void CSVReader::createOutput(Data *d){
+    ofstream file(output);
+    if(!file.is_open())
+        throw "File cannot be created!";
+    
+    file << headers << endl;
+    
+    for(int i = 0; i < d->csv_data.size(); i++){
+        file << d->csv_data[i].first << endl;
+    }
+    
 }
 
 Data * Data::insertionSort(const Arguments * args){
@@ -201,14 +212,80 @@ Data * Data::insertionSort(const Arguments * args){
         }
     }
 
-    cout << endl << endl << "/////////////////////////////////////////////////////////////////////////" << endl;
-    for(int i=0; i<data_size;i++){
-        ////////////////////////////////////////////////////////////////////////////////////
-        cout << "Line " << i+1 << ": " << csv_data[i].first << endl;
-        cout << "-----------------------------" << endl;
-        cout << "Timestamp:" << csv_data[i].second.first.ts << "." << csv_data[i].second.first.fraction << "\tLast Price:" << csv_data[i].second.second << endl;
-        cout << "-----------------------------" << endl;
-        ////////////////////////////////////////////////////////////////////////////////////
-    }
     return this;
+}
+
+void merge(Data *d, const Arguments * args, Data *left, Data *right){
+    int nLeft = left->csv_data.size();
+    int nRight = right->csv_data.size();
+    
+    int i, j, k;
+    i = j = k = 0;
+
+    if(args->feature == "p"){
+        while(i < nLeft && j < nRight){
+            if(left->csv_data[i].second.second <= right->csv_data[j].second.second){
+                d->csv_data[k] = left->csv_data[i];
+                i++;
+            }
+            else{
+                d->csv_data[k] = right->csv_data[j];
+                j++;
+            }
+            k++;
+        }
+    }
+    else {
+        while(i < nLeft && j < nRight){
+            if(left->csv_data[i].second.first.ts < right->csv_data[j].second.first.ts){
+                d->csv_data[k] = left->csv_data[i];
+                i++;
+            }
+            else if(left->csv_data[i].second.first.ts == right->csv_data[j].second.first.ts){
+                if(left->csv_data[i].second.first.fraction <= right->csv_data[j].second.first.fraction){
+                    d->csv_data[k] = left->csv_data[i];
+                    i++;
+                }
+                else {
+                    d->csv_data[k] = right->csv_data[j];
+                    j++;
+                }
+            }
+            else {
+                d->csv_data[k] = right->csv_data[j];
+                j++;
+            }
+            k++;
+        }
+    }
+    while(i < nLeft){
+        d->csv_data[k] = left->csv_data[i];
+        i++;
+        k++;
+    }
+    while(j < nRight){
+        d->csv_data[k] = right->csv_data[j];
+        j++;
+        k++;
+    }
+}
+
+void mergeSort(Data * d, const Arguments * args){
+    if(d->csv_data.size() <= 1) return;
+    
+    int m = d->csv_data.size() / 2;
+
+    Data * left = new Data;
+    Data * right = new Data;
+
+    //copy data to temp vectors
+    for(int i = 0; i < m; i++)
+        left->csv_data.push_back(d->csv_data[i]);
+    for(int i = 0; i < (d->csv_data.size()- m); i++)
+        right->csv_data.push_back(d->csv_data[m+i]);
+
+    mergeSort(left, args);
+    mergeSort(right, args);
+
+    merge(d, args, left, right);
 }
