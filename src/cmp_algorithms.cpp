@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <ctime>
 #include <getopt.h> //argument parser getopt() func
 
 #include "cmp_algorithms.h"
@@ -89,9 +90,17 @@ int main(int argc, char *argv[])
 
     try {
         csv.getData(&data, &arguments);
-        cout << endl << endl << "CSV File has been read." << endl;
-        //data.insertionSort(&arguments);
-        mergeSort(&data, &arguments);
+        cout << "CSV File has been read." << endl;
+        
+        clock_t t = clock();
+        if(arguments.algorithm == "i")
+            data.insertionSort(&arguments);
+        else 
+            mergeSort(&data, &arguments);
+        t = clock() - t;
+        double timePassed = ((double)t) / CLOCKS_PER_SEC;
+        cout << endl << "Sorting time was " << timePassed << " seconds." << endl << endl;
+        cout << "CSV File is now being created." << endl;
         csv.createOutput(&data);
     } catch(const char *msg){
         cerr << msg << endl;
@@ -275,17 +284,17 @@ void mergeSort(Data * d, const Arguments * args){
     
     int m = d->csv_data.size() / 2;
 
-    Data * left = new Data;
-    Data * right = new Data;
+    Data left;
+    Data right;
 
     //copy data to temp vectors
     for(int i = 0; i < m; i++)
-        left->csv_data.push_back(d->csv_data[i]);
+        left.csv_data.push_back(d->csv_data[i]);
     for(int i = 0; i < (d->csv_data.size()- m); i++)
-        right->csv_data.push_back(d->csv_data[m+i]);
+        right.csv_data.push_back(d->csv_data[m+i]);
 
-    mergeSort(left, args);
-    mergeSort(right, args);
+    mergeSort(&left, args);
+    mergeSort(&right, args);
 
-    merge(d, args, left, right);
+    merge(d, args, &left, &right);
 }
