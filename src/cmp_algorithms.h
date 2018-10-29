@@ -34,7 +34,7 @@ class CSVReader {
     std::string output;
 
 public:
-    CSVReader(std::string file = "../log_inf.csv", std::string out = "output.csv", std::string delim = ",") : filename(file), deliminator(delim), output(out)
+    CSVReader(std::string file = "../log_inf.csv", std::string out = "sorted.csv", std::string delim = ",") : filename(file), deliminator(delim), output(out)
     {}
     Data * getData(Data *, const Arguments *);
     void createOutput(Data *);
